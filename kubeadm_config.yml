@@ -1,0 +1,119 @@
+apiVersion: kubeadm.k8s.io/v1beta2
+bootstrapTokens:
+- groups:
+  - system:bootstrappers:kubeadm:default-node-toke
+  token: abcdef.0123456789abcdef
+  ttl: 24h0m0s
+  usages:
+  - signing
+  - authentication
+kind : InitConfiguration
+localAPIEndpoint:
+  advertiseAddress: 20.20.20.101
+  bindPort: 6443
+nodeRegistration:
+  criSocket:  /var/run/dockershim.sock
+  name: master1
+  taints:
+  - effects: NoSchedule
+    key: node-role.kuberenetes.io/master
+---
+apiServer:
+  extraArgs:
+    authorization-mode: "Node,RBAC"
+  timeoutForControlPlane: 4m0s
+  certsSANs:
+  - "20.20.20.100"
+  - "20.20.20.101"
+  - "20.20.20.102"
+  - "20.20.20.103"
+  - "20.20.20.104"
+  - "loadbalancer"
+  - "lb"
+  - "master1"
+  - "master2"
+  - "master3"
+  - "worker1"
+  - "master-1"
+  - "master-2"
+  - "master-3"
+  - "worker-1"
+  - "loadbalancer.zeroCluster.lab"
+  - "master1.zeroCluster.lab"
+  - "master2.zeroCluster.lab"
+  - "master3.zeroCluster.lab"
+  - "worker1.zeroCluster.lab"
+  - "master-1.zeroCluster.lab"
+  - "master-2.zeroCluster.lab"
+  - "master-3.zeroCluster.lab"
+  - "worker-1.zeroCluster.lab"
+apiVersion: kubeadm.k8s.io/v1beta2
+certificatesDir: /etc/kubernetes/pki
+clusterName: kubernetes
+controllerManager: {}
+dns:
+  type: CoreDNS
+etcd:
+  local:
+    imageRepository: "quay.io/coreos"
+    imageTag: "v3.4.14"
+    dataDir: "/var/lib/etcd"
+    serverCertsSANs:
+    - "20.20.20.100"
+    - "20.20.20.101"
+    - "20.20.20.102"
+    - "20.20.20.103"
+    - "20.20.20.104"
+    - "loadbalancer"
+    - "lb"
+    - "master1"
+    - "master2"
+    - "master3"
+    - "worker1"
+    - "master-1"
+    - "master-2"
+    - "master-3"
+    - "worker-1"
+    - "loadbalancer.zeroCluster.lab"
+    - "master1.zeroCluster.lab"
+    - "master2.zeroCluster.lab"
+    - "master3.zeroCluster.lab"
+    - "worker1.zeroCluster.lab"
+    - "master-1.zeroCluster.lab"
+    - "master-2.zeroCluster.lab"
+    - "master-3.zeroCluster.lab"
+    - "worker-1.zeroCluster.lab"
+  peerCertSANs:
+    - "20.20.20.100"
+    - "20.20.20.101"
+    - "20.20.20.102"
+    - "20.20.20.103"
+    - "20.20.20.104"
+    - "loadbalancer"
+    - "lb"
+    - "master1"
+    - "master2"
+    - "master3"
+    - "worker1"
+    - "master-1"
+    - "master-2"
+    - "master-3"
+    - "worker-1"
+    - "loadbalancer.zeroCluster.lab"
+    - "master1.zeroCluster.lab"
+    - "master2.zeroCluster.lab"
+    - "master3.zeroCluster.lab"
+    - "worker1.zeroCluster.lab"
+    - "master-1.zeroCluster.lab"
+    - "master-2.zeroCluster.lab"
+    - "master-3.zeroCluster.lab"
+    - "worker-1.zeroCluster.lab"
+kubernetesVersion: v1.20.0
+imageRepository: k8s.gcr.io
+kind: ClusterConfiguration
+controlPlaneEndpoint: "loadbalancer.zeroCluster.lab:6443"
+networking:
+  dnsDomain: zeroCluster.lab
+  serviceSubnet: 10.96.0.0/12
+  podSubnet: 192.110.0.0/16
+schedular: {}
