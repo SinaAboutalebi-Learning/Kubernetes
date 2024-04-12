@@ -2,9 +2,9 @@
 docker_version=26.0.1
 docker_dest=/etc/systemd/system/docker.service.d/
 mirror_registry=
-kubeadm_version=1.20.0-00
-kubectl_version=1.20.0-00
-kubelet_version=1.20.0-00
+kubeadm_version=1.28.0-00
+kubectl_version=1.28.0-00
+kubelet_version=1.28.0-00
 etcd_version=v3.4.14
 calico_version=v3.18
 
@@ -30,19 +30,28 @@ which docker || { curl -fsSL https://releases.rancher.com/install-docker/${docke
 }
 
 echo "[⚙️] Configure Docker daemon"
-if [ -d "$docker_dest" ]; then
-    echo "[+] Directory exists"
-else
-    mkdir -p "$docker_dest"
-    touch "$docker_dest"/override.conf
-fi
+# if [ -d "$docker_dest" ]; then
+#     echo "[+] Directory exists"
+# else
+#     mkdir -p "$docker_dest"
+#     touch "$docker_dest"/override.conf
+# fi
 
-cat <<EOT > "$docker_dest"/override.conf
-[Service]
-ExecStart=
-ExecStart=/usr/bin/dockerd --registry-mirror "$mirror_registry" --log-opt max-size=500 --log-opt max-file=5
-EOT
+# cat <<EOT > "$docker_dest"/override.conf
+# [Service]
+# ExecStart=
+# ExecStart=/usr/bin/dockerd --registry-mirror "$mirror_registry" --log-opt max-size=500 --log-opt max-file=5
+# EOT
 cat "$docker_dest"/override.conf
+
+
+cat >/etc/docker/daemon.json<<EOF
+{
+"insecure-registries":["https://docker.arvancloud.ir"],
+"registry-mirrors": ["https://docker.arvancloud.ir"]
+}
+EOF
+
 {
     systemctl daemon-reload
     systemctl restart docker
@@ -63,12 +72,14 @@ swapoff -a
 # Install apt-transport-https pkg
 echo "[⚙️] Install apt-transport-https pkg"
 apt install -y apt-transport-https
-curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+curl -s https://pkgs.k8s.io/apt/doc/apt-key.gpg | apt-key add -
 
 # Add Kubernetes Repository
-cat <<EOF | sudo tee /etc/apt/sources.list.d/kubernetes.list
-deb https://apt.kubernetes.io/ kubernetes-jammy main
-EOF
+#cat <<EOF | sudo tee /etc/apt/sources.list.d/kubernetes.list
+#deb https://apt.kubernetes.io/ kubernetes-jammy main
+#EOF
+echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 ls -ltr /etc/apt/sources.list.d/kubernetes.list
 apt update -y
 
@@ -95,7 +106,7 @@ echo "[⚙️] Installing etcd"
 curl -L https://github.com/coreos/etcd/releases/download/"$etcd_version"/etcd-"$etcd_version"-linux-amd64.tar.gz | tar xzvf -
 cp etcd-"$etcd_version"-linux-amd64/etcdctl /usr/local/bin
 rm -rf etcd-"$etcd_version"-linux-amd64
-etcdctl --version
+etcdctl version
 
 echo "[⚙️] Remove all unused packages"
 apt autoremove -y
