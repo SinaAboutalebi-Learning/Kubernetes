@@ -5,8 +5,7 @@ mirror_registry=
 kubeadm_version=1.28.0-00
 kubectl_version=1.28.0-00
 kubelet_version=1.28.0-00
-etcd_version=v3.4.14
-calico_version=v3.18
+etcd_version=v3.5.13
 
 # Network
 loadbalancer_ip=20.20.20.100
@@ -23,28 +22,13 @@ apt install -y wget git vim bash-completion curl htop net-tools dnsutils \
                 atop software-properties-common telnet axel jq iotop
 
 echo -e "[⚙️] Docker installation"
-which docker || { curl -fsSL https://releases.rancher.com/install-docker/${docker_version}.sh | sh ;}
+which docker || { curl -fsSL https://releases.rancher.com/install-docker/${docker_version}.sh | sh - ;}
 {
     systemctl start docker
     systemctl enable docker
 }
 
 echo "[⚙️] Configure Docker daemon"
-# if [ -d "$docker_dest" ]; then
-#     echo "[+] Directory exists"
-# else
-#     mkdir -p "$docker_dest"
-#     touch "$docker_dest"/override.conf
-# fi
-
-# cat <<EOT > "$docker_dest"/override.conf
-# [Service]
-# ExecStart=
-# ExecStart=/usr/bin/dockerd --registry-mirror "$mirror_registry" --log-opt max-size=500 --log-opt max-file=5
-# EOT
-cat "$docker_dest"/override.conf
-
-
 cat >/etc/docker/daemon.json<<EOF
 {
 "insecure-registries":["https://docker.arvancloud.ir"],
@@ -72,12 +56,12 @@ swapoff -a
 # Install apt-transport-https pkg
 echo "[⚙️] Install apt-transport-https pkg"
 apt install -y apt-transport-https
-curl -s https://pkgs.k8s.io/apt/doc/apt-key.gpg | apt-key add -
 
-# Add Kubernetes Repository
-#cat <<EOF | sudo tee /etc/apt/sources.list.d/kubernetes.list
-#deb https://apt.kubernetes.io/ kubernetes-jammy main
-#EOF
+curl -fsSL https://pkgs.k8s.io/addons:/cri-o:/prerelease:/main/deb/Release.key |
+    gpg --dearmor -o /etc/apt/keyrings/cri-o-apt-keyring.gpg
+echo "deb [signed-by=/etc/apt/keyrings/cri-o-apt-keyring.gpg] https://pkgs.k8s.io/addons:/cri-o:/prerelease:/main/deb/ /" |
+    tee /etc/apt/sources.list.d/cri-o.list
+
 echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
 curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 ls -ltr /etc/apt/sources.list.d/kubernetes.list
@@ -85,7 +69,7 @@ apt update -y
 
 # Install Kubernetes
 echo "[⚙️] Install Kubernetes kubeadm, kubelet, kubectl"
-apt install -y kubelet="$kubelet_version" kubectl="$kubectl_version" kubeadm="$kubeadm_version"
+apt install -y kubelet="$kubelet_version" kubectl="$kubectl_version" kubeadm="$kubeadm_version" cri-o
 
 # Check versions
 kubelet --version
