@@ -19,7 +19,7 @@
     remote_src: yes
 
 - name: Deploy calico for pod networks
-  shell: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/master/manifests/calico.yaml >> /opt/calico_setup.log
+  shell: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/master/manifests/calico.yaml >> /opt/logs/calico_setup.log
   args:
-    chdir: /opt
+    chdir: /opt/logs
     creates: calico_setup.log
