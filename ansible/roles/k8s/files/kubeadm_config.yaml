@@ -7,6 +7,6 @@ nodeRegistration:
 apiVersion: kubeadm.k8s.io/v1beta3
 kind: ClusterConfiguration
 networking:
-  dnsDomain: k8sCluster.shitlab.local
+  dnsDomain: k8scluster.shitlab.local
   serviceSubnet: 10.96.0.0/12
   podSubnet: 172.15.0.0/16
