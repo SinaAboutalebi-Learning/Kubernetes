@@ -11,4 +11,8 @@ networking:
   dnsDomain: k8scluster.shitlab.local
   serviceSubnet: 10.96.0.0/12
   podSubnet: 172.15.0.0/16
-#imageRepository: registry.k8scluster.shitlab.local:5000
+imageRepository: registry.k8scluster.shitlab.local:5000
+
+dns:
+  type: CoreDNS
+  imageRepository: registry.k8scluster.shitlab.local:5000/coredns
