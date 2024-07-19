@@ -6,7 +6,7 @@
   include_tasks: preinstall_configurations.yaml
 
 - name: initialize control plane server
-  hosts: control_plane
+  when: "'control_plane' in group_names"
   include_tasks: initialize_master.yaml
 
 - name: join workers to cluster
