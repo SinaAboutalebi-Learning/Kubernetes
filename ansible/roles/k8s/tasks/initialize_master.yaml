@@ -1,10 +1,10 @@
-- name: Copy kubeadm_config.yml to master Server
+- name: Copy kubeadm_config.yaml to master Server
   copy:
-    src: kubeadm_config.yml
-    dest: /opt/kubeadm_config.yml
+    src: kubeadm_config.yaml
+    dest: /opt/kubeadm_config.yaml
 
 - name: initialize the cluster
-  command: kubeadm init --config /opt/kubeadm_config.yml
+  command: kubeadm init --config /opt/kubeadm_config.yaml
 
 - name: Create .kube directory
   file:
