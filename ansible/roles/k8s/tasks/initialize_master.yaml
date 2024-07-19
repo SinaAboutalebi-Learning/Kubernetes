@@ -1,10 +1,19 @@
+- name: Create /opt/configs directory
+  file:
+    path: /opt/configs
+    state: directory
+    mode: '0755'
+
 - name: Copy kubeadm_config.yaml to master Server
   copy:
     src: kubeadm_config.yaml
-    dest: /opt/kubeadm_config.yaml
+    dest: /opt/configs/kubeadm_config.yaml
+
+- name: Reset Kubernetes cluster configuration
+  command: kubeadm reset --force
 
 - name: initialize the cluster
-  command: kubeadm init --config /opt/kubeadm_config.yaml
+  command: kubeadm init --config /opt/configs/kubeadm_config.yaml
 
 - name: Create .kube directory
   file:
