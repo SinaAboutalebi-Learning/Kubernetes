@@ -6,6 +6,10 @@
   set_fact:
     join_command: "{{ raw_command.stdout.strip() }}"
 
+- name: Reset Kubernetes cluster configuration
+  when: inventory_hostname in groups["workers"]
+  command: kubeadm reset --force
+
 - name: Join workers to cluster
   shell: "{{ hostvars[groups['control_plane'][0]].join_command }} >> /opt/logs/workers_join.log"
   when: inventory_hostname in groups["workers"]
