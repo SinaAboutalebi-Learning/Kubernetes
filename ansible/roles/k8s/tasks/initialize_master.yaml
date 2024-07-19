@@ -18,6 +18,12 @@
     dest: $HOME/.kube/config
     remote_src: yes
 
+- name: Create /opt/logs directory
+  file:
+    path: /opt/logs
+    state: directory
+    mode: '0755'
+
 - name: Deploy calico for pod networks
   shell: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/master/manifests/calico.yaml >> /opt/logs/calico_setup.log
   args:
