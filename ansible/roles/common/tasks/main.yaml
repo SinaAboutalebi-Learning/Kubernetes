@@ -1,19 +1,4 @@
 ---
-- name: Update apt repository
-  apt: update_cache=yes
-
-- name: Install basic packages 
-  apt:
-    name:
-      - vim
-      - git
-      - wget
-      - curl
-      - apt-transport-https
-      - ca-certificates
-      - software-properties-common
-    state: present
-
 - name: Backup current nameservers
   copy:
     src: /etc/resolv.conf
@@ -25,8 +10,8 @@
     path: /etc/resolv.conf
     state: absent
   
-- name: Stop systemd-resolved service
-  command: systemctl stop systemd-resolved && systemctl disable systemd-resolved
+- name: Disable systemd-resolved service
+  command: systemctl disable systemd-resolved
 
 - name: Update resolv.conf with new nameservers
   blockinfile:
@@ -44,3 +29,18 @@
 - name: print resolv.conf contents
   debug:
     msg: "{{ resolv_content.stdout }}"
+
+- name: Update apt repository
+  apt: update_cache=yes
+
+- name: Install basic packages 
+  apt:
+    name:
+      - vim
+      - git
+      - wget
+      - curl
+      - apt-transport-https
+      - ca-certificates
+      - software-properties-common
+    state: present
