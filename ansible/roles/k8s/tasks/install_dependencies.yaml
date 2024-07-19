@@ -1,0 +1,80 @@
+---
+# CRI-O Repository & GPG Key installation
+- name: Add cri-o apt-key
+  get_url:
+    url: https://pkgs.k8s.io/addons:/cri-o:/prerelease:/main/deb/Release.key
+    dest: /etc/apt/keyrings/cri-o-apt-keyring.asc
+    mode: '0644'
+    force: true
+    
+- name: Add cri-o repository
+  apt_repository:
+    repo: deb [signed-by=/etc/apt/keyrings/cri-o-apt-keyring.asc] https://pkgs.k8s.io/addons:/cri-o:/prerelease:/main/deb/ /
+    state: present
+
+# K8s Repository & GPG Key installation
+- name: Add k8s apt-key
+  get_url:
+    url: https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key
+    dest: /etc/apt/keyrings/kubernetes-apt-keyring.asc
+    mode: '0644'
+    force: true
+
+- name: Add k8s repository
+  apt_repository:
+    repo: deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.asc] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /
+    state: present
+
+# Update APT Repository & Install dependencies
+- name: Update apt repository
+  apt: update_cache=yes
+
+- name: Install k8s dependencies
+  apt:
+    name:
+      - dnsutils 
+      - iputils-ping
+      - traceroute
+      - net-tools 
+      - software-properties-common
+      - apt-transport-https
+      - cri-o 
+      - kubelet 
+      - kubeadm 
+      - kubectl
+    state: present
+
+# Verify Dependencies Installation
+- name: Check if kubelet binary exists
+  stat:
+    path: /usr/bin/kubelet
+  register: kubelet_exists
+
+- name: Check if kubeadm binary exists
+  stat:
+    path: /usr/bin/kubeadm
+  register: kubeadm_exists
+
+- name: Check if kubectl binary exists
+  stat:
+    path: /usr/bin/kubectl
+  register: kubectl_exists
+
+- name: Verify cri-o installation
+  systemd:
+    name: crio
+    enabled: yes
+    state: started
+
+- name: Verify kubelet, kubeadm, kubectl installation
+  debug:
+    msg: |
+      kubelet is installed: {{ kubelet_exists.stat.exists }}
+      kubeadm is installed: {{ kubeadm_exists.stat.exists }}
+      kubectl is installed: {{ kubectl_exists.stat.exists }}
+
+# Enable Kubelet Service
+- name: enable the Kubelet service
+  service:
+    name: kubelet
+    enabled: yes
