@@ -2,11 +2,15 @@ apiVersion: kubeadm.k8s.io/v1beta3
 kind: InitConfiguration
 nodeRegistration:
   criSocket: "unix:///var/run/crio/crio.sock"
-  name: master
+  name: master.k8scluster.shitlab.local
 ---
 apiVersion: kubeadm.k8s.io/v1beta3
 kind: ClusterConfiguration
+kubernetesVersion: v1.30.0
+dns:
+  type: CoreDNS
 networking:
   dnsDomain: k8scluster.shitlab.local
   serviceSubnet: 10.96.0.0/12
   podSubnet: 172.15.0.0/16
+imageRepository: registry.k8scluster.shitlab.local:5000

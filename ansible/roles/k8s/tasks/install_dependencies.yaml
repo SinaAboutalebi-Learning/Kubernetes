@@ -60,18 +60,28 @@
     path: /usr/bin/kubectl
   register: kubectl_exists
 
-- name: Verify cri-o installation
-  systemd:
-    name: crio
-    enabled: yes
-    state: started
-
 - name: Verify kubelet, kubeadm, kubectl installation
   debug:
     msg: |
       kubelet is installed: {{ kubelet_exists.stat.exists }}
       kubeadm is installed: {{ kubeadm_exists.stat.exists }}
       kubectl is installed: {{ kubectl_exists.stat.exists }}
+
+- name: Verify cri-o installation
+  systemd:
+    name: crio
+    enabled: yes
+    state: started
+
+- name: Copy cri-o Configuration
+  copy:
+    src: crio.conf
+    dest: /etc/containers/registries.conf.d/crio.conf
+
+- name: restart cri-o service
+  service:
+    name: crio
+    state: restarted
 
 # Enable Kubelet Service
 - name: enable the Kubelet service
