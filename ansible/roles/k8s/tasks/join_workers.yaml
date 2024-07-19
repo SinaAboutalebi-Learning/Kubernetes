@@ -1,17 +1,25 @@
 ---
+- name: Reset Kubernetes cluster configuration
+  when: inventory_hostname in groups["workers"]
+  command: kubeadm reset --force
+
 - name: Get join command from control plane
   when: "'control_plane' in group_names"
   shell: kubeadm token create --print-join-command
   register: raw_command
+  run_once: true
 
 - name: Set join command fact
   when: "'control_plane' in group_names"
   set_fact:
     join_command: "{{ raw_command.stdout.strip() }}"
+  run_once: true
 
-- name: Reset Kubernetes cluster configuration
+- name: Remove existing join log file
   when: inventory_hostname in groups["workers"]
-  command: kubeadm reset --force
+  file:
+    path: /opt/logs/workers_join.log
+    state: absent
 
 - name: Create /opt/logs directory
   file:
@@ -25,3 +33,4 @@
   args:
     chdir: /opt/logs
     creates: workers_join.log
+  register: join_result
