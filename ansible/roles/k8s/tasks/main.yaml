@@ -8,3 +8,6 @@
 - name: initialize control plane server
   hosts: control_plane
   include_tasks: initialize_master.yaml
+
+- name: join workers to cluster
+  include_tasks: join_worker.yaml
