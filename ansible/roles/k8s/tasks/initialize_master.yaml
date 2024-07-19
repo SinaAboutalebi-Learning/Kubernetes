@@ -1,0 +1,25 @@
+- name: Copy kubeadm_config.yml to master Server
+  copy:
+    src: kubeadm_config.yml
+    dest: /opt/kubeadm_config.yml
+
+- name: initialize the cluster
+  command: kubeadm init --config /opt/kubeadm_config.yml
+
+- name: Create .kube directory
+  file:
+    path: $HOME/.kube
+    state: directory
+    mode: 0755
+
+- name: Copy admin.conf to user's kube config
+  copy:
+    src: /etc/kubernetes/admin.conf
+    dest: $HOME/.kube/config
+    remote_src: yes
+
+- name: Deploy calico for pod networks
+  shell: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/master/manifests/calico.yaml >> /opt/calico_setup.log
+  args:
+    chdir: /opt
+    creates: calico_setup.log
