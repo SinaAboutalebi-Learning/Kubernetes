@@ -1,0 +1,12 @@
+---
+# run common tasks in all servers
+- hosts: all
+  become: yes
+  roles:
+    - common
+
+# setup and initialize k8s cluster
+- hosts: all
+  become: yes
+  roles:
+    - k8s
