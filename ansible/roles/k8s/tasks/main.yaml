@@ -4,3 +4,7 @@
 
 - name: pre install configuration
   include_tasks: preinstall_configurations.yaml
+
+- name: initialize control plane server
+  hosts: control_plane
+  include_tasks: initialize_master.yaml
