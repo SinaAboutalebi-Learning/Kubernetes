@@ -12,7 +12,7 @@
 - name: Reset Kubernetes cluster configuration
   command: kubeadm reset --force
 
-- name: initialize the cluster
+- name: Initialize the cluster
   command: kubeadm init --config /opt/configs/kubeadm_config.yaml
 
 - name: Create .kube directory
@@ -33,8 +33,19 @@
     state: directory
     mode: '0755'
 
-- name: Deploy calico for pod networks
-  shell: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/master/manifests/calico.yaml >> /opt/logs/calico_setup.log
+- name: Install Cilium CLI
+  shell: |
+    CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
+    CLI_ARCH=amd64
+    if [ "$(uname -m)" = "aarch64" ]; then CLI_ARCH=arm64; fi
+    curl -L --fail --remote-name-all https://github.com/cilium/cilium-cli/releases/download/${CILIUM_CLI_VERSION}/cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
+    sha256sum --check cilium-linux-${CLI_ARCH}.tar.gz.sha256sum
+    sudo tar xzvfC cilium-linux-${CLI_ARCH}.tar.gz /usr/local/bin
+    rm cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
   args:
     chdir: /opt/logs
-    creates: calico_setup.log
+
+- name: Deploy Cilium for pod networks
+  shell: cilium install --version 1.16.0
+  args:
+    chdir: /opt/logs
