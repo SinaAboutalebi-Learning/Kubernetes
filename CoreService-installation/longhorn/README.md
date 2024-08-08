@@ -64,3 +64,37 @@ Monitor the Longhorn pods to ensure they are running correctly:
 ```bash
 kubectl get pods --namespace longhorn-system --watch
 ```
+
+## Configuring Longhorn Frontend Service as a LoadBalancer
+
+By default, the `longhorn-frontend` service is configured as a `ClusterIP` service. To expose it as a LoadBalancer service, follow the steps below:
+
+1. Create a YAML file for the longhorn-frontend service with the following content:
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: longhorn-frontend
+  namespace: longhorn-system
+  labels:
+    app: longhorn-ui
+    app.kubernetes.io/instance: longhorn
+    app.kubernetes.io/name: longhorn
+    app.kubernetes.io/version: v1.6.2
+spec:
+  type: LoadBalancer
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: http
+  selector:
+    app: longhorn-ui
+```
+
+2. Apply the YAML file:
+```bash
+kubectl apply -f longhorn-frontend-lb.yaml
+```
+
+This will configure the longhorn-frontend service as a LoadBalancer, allowing external access to the Longhorn UI.
