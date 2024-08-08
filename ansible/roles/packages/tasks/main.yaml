@@ -1,0 +1,16 @@
+- name: Update apt repository
+  apt: update_cache=yes
+
+- name: Install basic packages 
+  apt:
+    name:
+      - bash
+      - findmnt
+      - grep
+      - curl
+      - awk
+      - blkid
+      - lsblk
+      - nfs-common
+      - open-iscsi
+    state: present
