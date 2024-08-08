@@ -4,6 +4,7 @@
 - name: Install basic packages 
   apt:
     name:
+      - jq
       - bash
       - findmnt
       - grep
